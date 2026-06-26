@@ -6,6 +6,23 @@ echo "=================================="
 echo "       Welcome to QEMU Script"
 echo "=================================="
 echo
+
+echo "Updating System..."
+apt update -y
+
+echo
+echo "Installing Dependencies..."
+apt install -y wget curl qemu-system-x86 qemu-utils novnc websockify
+
+echo
+echo "Checking QEMU..."
+
+if ! command -v qemu-system-x86_64 >/dev/null 2>&1; then
+echo "QEMU installation failed."
+exit 1
+fi
+
+echo
 echo "1) Windows 10"
 echo "2) Windows 11"
 echo "0) Exit"
@@ -27,8 +44,7 @@ case $WIN in
    OS_NAME="Windows 11"
    ;;
 
-3) echo "Goodbye!"
-   exit 0
+3) exit 0
    ;;
 
 *)
@@ -50,13 +66,14 @@ echo "RAM         : 16 GB"
 echo "CPU Cores   : 8"
 echo "Disk Size   : 100 GB"
 echo "=================================="
+
 echo
 
 if [ ! -f "$ISO_NAME" ]; then
 echo "Downloading ISO..."
 wget -O "$ISO_NAME" "$ISO_URL"
 else
-echo "ISO already exists. Skipping download."
+echo "ISO already exists."
 fi
 
 echo
@@ -65,7 +82,7 @@ if [ ! -f "$DISK_NAME" ]; then
 echo "Creating 100GB Disk..."
 qemu-img create -f qcow2 "$DISK_NAME" 100G
 else
-echo "Disk already exists. Skipping creation."
+echo "Disk already exists."
 fi
 
 echo
@@ -78,8 +95,8 @@ websockify --web=/usr/share/novnc/ $NOVNC_PORT localhost:$VNC_PORT >/dev/null 2>
 
 sleep 2
 
-echo "Starting QEMU..."
 echo
+echo "Starting QEMU..."
 
 qemu-system-x86_64 
 -m 16384 
